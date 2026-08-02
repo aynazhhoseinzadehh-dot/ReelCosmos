@@ -12,8 +12,18 @@ The platform provides secure authentication, movie management, TMDB API integrat
 
 Deployed on ArvanCloud:
 
-https://reelcosmos-3f6eae487f-reelcosmos.apps.ir-central1.arvancaas.ir/
+## 🎨 Frontend Application
 
+User Interface:
+
+https://reelcosmos-frontend-3f6eae487f-reelcosmos.apps.ir-central1.arvancaas.ir/
+
+
+## ⚙️ Backend API
+
+REST API Server:
+
+https://reelcosmos-3f6eae487f-reelcosmos.apps.ir-central1.arvancaas.ir/
 ---
 
 # 🔗 Repository
