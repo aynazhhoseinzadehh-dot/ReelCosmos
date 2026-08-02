@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,17 +24,38 @@ public class MovieController {
     private final MovieService movieService;
 
     @GetMapping
-    public ResponseEntity<Page<MovieResponse>> getAllMovies(
+    public ResponseEntity<Page<MovieResponse>> getMovies(
+
+            @RequestParam(required = false) String title,
+
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+
+            @RequestParam(defaultValue = "20") int size,
+
+            @RequestParam(defaultValue = "popularity,desc") String sort
+
     ) {
 
         size = Math.min(size, 100);
 
-        Pageable pageable = PageRequest.of(page, size);
+        String[] sortParts = sort.split(",");
+
+        String property = sortParts[0];
+
+        Sort.Direction direction =
+                sortParts.length > 1
+                        ? Sort.Direction.fromString(sortParts[1])
+                        : Sort.Direction.DESC;
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        Sort.by(direction, property)
+                );
 
         return ResponseEntity.ok(
-                movieService.getAllMovies(pageable)
+                movieService.getMovies(title, pageable)
         );
 
     }

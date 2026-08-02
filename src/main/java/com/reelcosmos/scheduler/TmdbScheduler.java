@@ -19,9 +19,9 @@ public class TmdbScheduler {
     // Every 12 hours
     // =====================================================
 
-    @Scheduled(
-            fixedDelay = 43200000
-    )
+   // @Scheduled(
+           // fixedDelay = 43200000
+   // )
     public void syncPopularMovies() {
 
         log.info(
@@ -43,9 +43,9 @@ public class TmdbScheduler {
     // Every day at 02:00 AM
     // =====================================================
 
-    @Scheduled(
-            cron = "0 0 2 * * *"
-    )
+   // @Scheduled(
+       //     cron = "0 0 2 * * *"
+   // )
     public void syncUpcomingMovies() {
 
         log.info(
@@ -67,9 +67,9 @@ public class TmdbScheduler {
     // Every day at 03:00 AM
     // =====================================================
 
-    @Scheduled(
-            cron = "0 0 3 * * *"
-    )
+  //  @Scheduled(
+         //   cron = "0 0 3 * * *"
+   // )
     public void syncNowPlayingMovies() {
 
         log.info(
@@ -91,9 +91,9 @@ public class TmdbScheduler {
     // Every Sunday at 04:00 AM
     // =====================================================
 
-    @Scheduled(
-            cron = "0 0 4 * * SUN"
-    )
+   // @Scheduled(
+           // cron = "0 0 4 * * SUN"
+   // )
     public void syncTopRatedMovies() {
 
         log.info(

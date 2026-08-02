@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -19,14 +21,8 @@ public class GenreController {
 
     private final GenreService genreService;
 
-    @GetMapping
-    public ResponseEntity<List<GenreResponse>> getAllGenres() {
 
-        return ResponseEntity.ok(
-                genreService.getAllGenres()
-        );
 
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<GenreResponse> getGenreById(
@@ -78,4 +74,32 @@ public class GenreController {
 
     }
 
+
+    @GetMapping
+    public ResponseEntity<Page<GenreResponse>> getGenres(
+
+            @RequestParam(required = false)
+            String name,
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size
+
+    ) {
+
+        Pageable pageable =
+                PageRequest.of(page, size);
+
+        return ResponseEntity.ok(
+
+                genreService.getGenres(
+                        name,
+                        pageable
+                )
+
+        );
+
+    }
 }

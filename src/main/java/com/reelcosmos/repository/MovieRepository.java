@@ -13,6 +13,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     Optional<Movie> findByTmdbId(Long tmdbId);
 
+    boolean existsByTmdbId(Long tmdbId);
+
     List<Movie> findByTitleContainingIgnoreCase(String title);
 
     List<Movie> findByStatus(MovieStatus status);
@@ -21,6 +23,9 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     List<Movie> findTop10ByOrderByAverageRatingDesc();
 
-boolean existsByTmdbId(Long tmdbId);
-    Page<Movie> findAll(Pageable pageable);
+    Page<Movie> findByTitleContainingIgnoreCase(
+            String title,
+            Pageable pageable
+    );
+
 }

@@ -2,6 +2,7 @@ package com.reelcosmos.service.impl;
 
 import com.reelcosmos.dto.request.UserUpdateRequest;
 import com.reelcosmos.dto.response.UserResponse;
+import com.reelcosmos.entity.Role;
 import com.reelcosmos.entity.User;
 import com.reelcosmos.exception.ResourceNotFoundException;
 import com.reelcosmos.exception.UnauthorizedException;
@@ -13,13 +14,16 @@ import com.reelcosmos.service.auth.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements UserService {
+
 
     private final UserRepository userRepository;
 
@@ -27,82 +31,285 @@ public class UserServiceImpl implements UserService {
 
     private final RefreshTokenService refreshTokenService;
 
+
+
+
+
+    private User findUser(Long id) {
+
+
+        return userRepository.findById(id)
+
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found."
+                        )
+                );
+
+    }
+
+
+
+
+
+
+
     @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
 
-        Long userId = SecurityUtils.getCurrentUserId();
 
-        if (userId == null) {
-            throw new UnauthorizedException("User is not authenticated.");
+        Long userId =
+                SecurityUtils.getCurrentUserId();
+
+
+
+        if(userId == null){
+
+            throw new UnauthorizedException(
+                    "User is not authenticated."
+            );
+
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found.")
-                );
 
-        return userMapper.toResponse(user);
+
+        return userMapper.toResponse(
+                findUser(userId)
+        );
+
     }
+
+
+
+
+
+
+
+
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found.")
-                );
 
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(
+                findUser(id)
+        );
+
     }
+
+
+
+
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
+    public Page<UserResponse> getUsers(
+            String search,
+            Pageable pageable
+    ) {
 
-        return userRepository.findAll()
-                .stream()
-                .map(userMapper::toResponse)
-                .toList();
-    }
+        Page<User> users;
 
-    @Override
-    public UserResponse updateCurrentUser(UserUpdateRequest request) {
+        if (search == null || search.isBlank()) {
 
-        Long userId = SecurityUtils.getCurrentUserId();
+            users = userRepository.findAll(pageable);
 
-        if (userId == null) {
-            throw new UnauthorizedException("User is not authenticated.");
+        } else {
+
+            users = userRepository
+                    .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                            search,
+                            search,
+                            pageable
+                    );
+
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found.")
-                );
+        return users.map(userMapper::toResponse);
 
-        userMapper.updateEntity(request, user);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    public UserResponse updateCurrentUser(
+            UserUpdateRequest request
+    ) {
+
+
+        Long userId =
+                SecurityUtils.getCurrentUserId();
+
+
+
+        if(userId == null){
+
+            throw new UnauthorizedException(
+                    "User is not authenticated."
+            );
+
+        }
+
+
+
+        User user =
+                findUser(userId);
+
+
+
+        userMapper.updateEntity(
+                request,
+                user
+        );
+
+
 
         return userMapper.toResponse(user);
+
     }
+
+
+
+
+
+
+
+
 
     @Override
     public void deleteCurrentUser() {
 
-        Long userId = SecurityUtils.getCurrentUserId();
 
-        if (userId == null) {
-            throw new UnauthorizedException("User is not authenticated.");
+        Long userId =
+                SecurityUtils.getCurrentUserId();
+
+
+
+        if(userId == null){
+
+            throw new UnauthorizedException(
+                    "User is not authenticated."
+            );
+
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found.")
-                );
 
-        refreshTokenService.revokeAllUserTokens(user);
+
+        User user =
+                findUser(userId);
+
+
+
+        refreshTokenService
+                .revokeAllUserTokens(user);
+
+
 
         userRepository.delete(user);
+
+
     }
+
+
+
+
+
+
+
+
+
+
+    // ================= ADMIN =================
+
+
+
+
+
+    @Override
+    public UserResponse updateUser(
+            Long id,
+            UserUpdateRequest request
+    ) {
+
+
+        User user =
+                findUser(id);
+
+
+
+        userMapper.updateEntity(
+                request,
+                user
+        );
+
+
+
+        return userMapper.toResponse(user);
+
+    }
+
+
+
+
+
+
+
+
+    @Override
+    public void deleteUser(Long id) {
+
+
+        User user =
+                findUser(id);
+
+
+
+        refreshTokenService
+                .revokeAllUserTokens(user);
+
+
+
+        userRepository.delete(user);
+
+
+    }
+
+
+
+
+
+
+
+
+    @Override
+    public UserResponse changeUserRole(
+            Long id,
+            Role role
+    ) {
+
+
+        User user =
+                findUser(id);
+
+
+
+        user.setRole(role);
+
+
+
+        return userMapper.toResponse(user);
+
+    }
+
 
 }

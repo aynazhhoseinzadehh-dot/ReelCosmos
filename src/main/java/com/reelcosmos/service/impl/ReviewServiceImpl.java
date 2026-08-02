@@ -47,7 +47,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         return userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found.")
+                        new ResourceNotFoundException(
+                                "User not found."
+                        )
                 );
 
     }
@@ -56,7 +58,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         return movieRepository.findById(movieId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Movie not found.")
+                        new ResourceNotFoundException(
+                                "Movie not found."
+                        )
                 );
 
     }
@@ -65,22 +69,21 @@ public class ReviewServiceImpl implements ReviewService {
 
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Review not found.")
+                        new ResourceNotFoundException(
+                                "Review not found."
+                        )
                 );
 
     }
 
-    /**
-     Owner can modify his review.
-     Admin can modify every review.
-     */
     private void validateOwner(
             Review review,
             User currentUser
     ) {
 
         boolean isOwner =
-                review.getUser().getId().equals(currentUser.getId());
+                review.getUser().getId()
+                        .equals(currentUser.getId());
 
         boolean isAdmin =
                 currentUser.getRole() == Role.ADMIN;
@@ -96,7 +99,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // =====================================================
-    // CRUD
+    // User CRUD
     // =====================================================
 
     @Override
@@ -114,9 +117,9 @@ public class ReviewServiceImpl implements ReviewService {
         review.setUser(currentUser);
         review.setMovie(movie);
 
-        Review savedReview = reviewRepository.save(review);
-
-        return reviewMapper.toResponse(savedReview);
+        return reviewMapper.toResponse(
+                reviewRepository.save(review)
+        );
 
     }
 
@@ -132,11 +135,14 @@ public class ReviewServiceImpl implements ReviewService {
 
         validateOwner(review, currentUser);
 
-        reviewMapper.updateEntity(request, review);
+        reviewMapper.updateEntity(
+                request,
+                review
+        );
 
-        Review updatedReview = reviewRepository.save(review);
-
-        return reviewMapper.toResponse(updatedReview);
+        return reviewMapper.toResponse(
+                reviewRepository.save(review)
+        );
 
     }
 
@@ -153,13 +159,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-// =====================================================
+    // =====================================================
     // Read
     // =====================================================
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewResponse getReviewById(Long reviewId) {
+    public ReviewResponse getReviewById(
+            Long reviewId
+    ) {
 
         return reviewMapper.toResponse(
                 findReview(reviewId)
@@ -169,7 +177,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getReviewsByMovie(Long movieId) {
+    public List<ReviewResponse> getReviewsByMovie(
+            Long movieId
+    ) {
 
         Movie movie = findMovie(movieId);
 
@@ -190,6 +200,32 @@ public class ReviewServiceImpl implements ReviewService {
                 .stream()
                 .map(reviewMapper::toResponse)
                 .toList();
+
+    }
+
+    // =====================================================
+    // Admin
+    // =====================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getAllReviews() {
+
+        return reviewRepository.findAll()
+                .stream()
+                .map(reviewMapper::toResponse)
+                .toList();
+
+    }
+
+    @Override
+    public void adminDeleteReview(
+            Long reviewId
+    ) {
+
+        Review review = findReview(reviewId);
+
+        reviewRepository.delete(review);
 
     }
 

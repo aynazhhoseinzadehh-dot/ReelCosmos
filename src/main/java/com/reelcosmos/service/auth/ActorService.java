@@ -2,7 +2,8 @@ package com.reelcosmos.service.auth;
 
 import com.reelcosmos.dto.request.ActorRequest;
 import com.reelcosmos.dto.response.ActorResponse;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ActorService {
@@ -17,8 +18,9 @@ public interface ActorService {
 
     ActorResponse getActorByTmdbId(Long tmdbId);
 
-    List<ActorResponse> getAllActors();
-
-    List<ActorResponse> searchByName(String name);
+    Page<ActorResponse> getActors(
+            String name,
+            Pageable pageable
+    );
 
 }

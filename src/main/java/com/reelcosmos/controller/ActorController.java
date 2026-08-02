@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -19,14 +21,7 @@ public class ActorController {
 
     private final ActorService actorService;
 
-    @GetMapping
-    public ResponseEntity<List<ActorResponse>> getAllActors() {
 
-        return ResponseEntity.ok(
-                actorService.getAllActors()
-        );
-
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ActorResponse> getActorById(
@@ -50,13 +45,30 @@ public class ActorController {
 
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<ActorResponse>> searchActors(
-            @RequestParam String name
+    @GetMapping
+    public ResponseEntity<Page<ActorResponse>> getActors(
+
+            @RequestParam(required = false)
+            String name,
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size
+
     ) {
 
+        Pageable pageable =
+                PageRequest.of(page, size);
+
         return ResponseEntity.ok(
-                actorService.searchByName(name)
+
+                actorService.getActors(
+                        name,
+                        pageable
+                )
+
         );
 
     }

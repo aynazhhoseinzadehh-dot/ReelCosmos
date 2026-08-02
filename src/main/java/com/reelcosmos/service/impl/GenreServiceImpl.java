@@ -11,7 +11,8 @@ import com.reelcosmos.service.auth.GenreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -106,15 +107,27 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GenreResponse> getAllGenres() {
+    public Page<GenreResponse> getGenres(
+            String name,
+            Pageable pageable
+    ) {
 
-        return genreRepository.findAll()
+        Page<Genre> page;
 
-                .stream()
+        if (name == null || name.isBlank()) {
 
-                .map(genreMapper::toResponse)
+            page = genreRepository.findAll(pageable);
 
-                .toList();
+        } else {
+
+            page = genreRepository.findByNameContainingIgnoreCase(
+                    name,
+                    pageable
+            );
+
+        }
+
+        return page.map(genreMapper::toResponse);
 
     }
 

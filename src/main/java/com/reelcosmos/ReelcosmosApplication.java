@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableFeignClients
 @EnableScheduling
-public class ReelcosmosApplication {
+public class  ReelcosmosApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ReelcosmosApplication.class, args);

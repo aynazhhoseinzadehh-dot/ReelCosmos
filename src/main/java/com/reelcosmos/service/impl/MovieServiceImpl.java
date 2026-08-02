@@ -155,15 +155,28 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<MovieResponse> getAllMovies(
+    public Page<MovieResponse> getMovies(
+            String title,
             Pageable pageable
     ) {
 
+        Page<Movie> movies;
 
-        return movieRepository
-                .findAll(pageable)
-                .map(movieMapper::toResponse);
+        if (title == null || title.isBlank()) {
 
+            movies = movieRepository.findAll(pageable);
+
+        } else {
+
+            movies = movieRepository
+                    .findByTitleContainingIgnoreCase(
+                            title,
+                            pageable
+                    );
+
+        }
+
+        return movies.map(movieMapper::toResponse);
 
     }
 

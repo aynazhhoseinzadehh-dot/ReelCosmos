@@ -20,6 +20,10 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    // =====================================================
+    // User
+    // =====================================================
+
     @PostMapping("/movie/{movieId}")
     public ResponseEntity<ReviewResponse> createReview(
             @PathVariable Long movieId,
@@ -29,7 +33,10 @@ public class ReviewController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        reviewService.createReview(movieId, request)
+                        reviewService.createReview(
+                                movieId,
+                                request
+                        )
                 );
 
     }
@@ -72,7 +79,10 @@ public class ReviewController {
     ) {
 
         return ResponseEntity.ok(
-                reviewService.updateReview(reviewId, request)
+                reviewService.updateReview(
+                        reviewId,
+                        request
+                )
         );
 
     }
@@ -83,6 +93,32 @@ public class ReviewController {
     ) {
 
         reviewService.deleteReview(reviewId);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    // =====================================================
+    // Admin
+    // =====================================================
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<ReviewResponse>> getAllReviews() {
+
+        return ResponseEntity.ok(
+                reviewService.getAllReviews()
+        );
+
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{reviewId}")
+    public ResponseEntity<Void> adminDeleteReview(
+            @PathVariable Long reviewId
+    ) {
+
+        reviewService.adminDeleteReview(reviewId);
 
         return ResponseEntity.noContent().build();
 

@@ -11,7 +11,8 @@ import com.reelcosmos.service.auth.ActorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -130,24 +131,30 @@ public class ActorServiceImpl implements ActorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ActorResponse> getAllActors() {
+    public Page<ActorResponse> getActors(
+            String name,
+            Pageable pageable
+    ) {
 
-        return actorRepository.findAll()
-                .stream()
-                .map(actorMapper::toResponse)
-                .toList();
+        Page<Actor> page;
+
+        if (name == null || name.isBlank()) {
+
+            page = actorRepository.findAll(pageable);
+
+        } else {
+
+            page = actorRepository.findByNameContainingIgnoreCase(
+                    name,
+                    pageable
+            );
+
+        }
+
+        return page.map(actorMapper::toResponse);
 
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ActorResponse> searchByName(String name) {
 
-        return actorRepository.findByNameContainingIgnoreCase(name)
-                .stream()
-                .map(actorMapper::toResponse)
-                .toList();
-
-    }
 
 }

@@ -19,7 +19,7 @@ public interface MovieService {
 
     MovieResponse getMovieByTmdbId(Long tmdbId);
 
-    Page<MovieResponse> getAllMovies(Pageable pageable);
+    Page<MovieResponse> getMovies(String title, Pageable pageable);
 
     List<MovieResponse> searchByTitle(String title);
 
