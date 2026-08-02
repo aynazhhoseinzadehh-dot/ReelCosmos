@@ -1,0 +1,55 @@
+name: Build & Publish Images
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Backend
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/reelcosmos-backend:latest .
+
+      - name: Push Backend
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/reelcosmos-backend:latest
+
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Frontend
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/reelcosmos-frontend:latest ./frontend
+
+      - name: Push Frontend
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/reelcosmos-frontend:latest
